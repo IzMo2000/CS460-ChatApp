@@ -74,7 +74,9 @@ def close_connection(conn, addr):
 
 def await_messages(room, username, conn):
     conn.send("To leave the chat room, press Enter (no input)\n".encode())
+
     while True:
+       
         try:
             message = conn.recv(2048).decode().strip()
             if message and message != "":
