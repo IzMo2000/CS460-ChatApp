@@ -19,7 +19,7 @@ class ChatRoom:
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 IP_address = str(sys.argv[1])
-server.bind((IP_address, 5000))
+server.bind((IP_address, 8181))
 
 server.listen(100)
 
