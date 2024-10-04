@@ -19,15 +19,7 @@ class ChatRoom:
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-if len(sys.argv) != 3:
-    print("Error: must give script, IP address, port number")
-    exit()
-
-IP_address = str(sys.argv[1])
-
-Port = int(sys.argv[2])
-
-server.bind((IP_address, Port))
+server.bind(("127.0.0.1", 8181))
 
 server.listen(100)
 
@@ -43,49 +35,43 @@ def client_thread(conn, addr):
     else:
         print(f"Client at {addr[0]} has entered as {username}")
     conn.send(f"Welcome to the chat app, {username}!\n".encode())
-    while True:
-        try:
-            action = prompt_actions(conn)
-            selected_room = 0
-            if action == '1':
-                selected_room = ChatRoom(conn)
-                chatrooms.append(selected_room)
+    action = prompt_actions(conn)
+    selected_room = 0
+    if action == '1':
+        selected_room = ChatRoom(conn)
+        chatrooms.append(selected_room)
 
-            elif action == '2':
-                selected_room_num = select_chat_room(conn)
-                if selected_room_num is None:
-                    continue
-                chatrooms[selected_room_num].add_client(conn)
-                selected_room = chatrooms[selected_room_num]
-            else:
-                close_connection(conn, addr)
-                return
+    elif action == '2':
+        selected_room_num = select_chat_room(conn)
+        if selected_room_num is None:
+            selected_room = ChatRoom(conn)
+            chatrooms.append(selected_room)
+        chatrooms[selected_room_num].add_client(conn)
+        selected_room = chatrooms[selected_room_num]
+    else:
+        close_connection(conn, addr)
+        return
 
-            broadcast_message(selected_room, f"{username} has joined.")
-            await_messages(selected_room, username, conn)
-            print(f"{username} left chat room {selected_room.room_num}")
-        except:
-            # close_connection(conn, addr)
-            continue
+    broadcast_message(selected_room, f"{username} has joined.\n")
+    await_messages(selected_room, username, conn)
+    print(f"{username} left chat room {selected_room.room_num}")
+    close_connection(conn, addr)
 
 def close_connection(conn, addr):
     print(f"Client at {addr[0]} closed connection")
     conn.close()
 
 def await_messages(room, username, conn):
-    conn.send("To leave the chat room, press Enter (no input)\n".encode())
-
+    conn.send("To leave the chat room, type '/exit'\n".encode())
     while True:
-       
         try:
             message = conn.recv(2048).decode().strip()
-            if message and message != "":
-                broadcast_message(room, f"{username}: {message}")
-            else:
+            if message == "/exit":
                 chatrooms[room.room_num].remove_client(conn)
-                print(chatrooms[room.room_num].__dict__)
                 broadcast_message(room, f"{username} has left the chat.")
                 break
+            if message:
+                broadcast_message(room, f"{username}: {message}")
         except:
             break
 
@@ -110,7 +96,7 @@ def prompt_actions(conn):
 
 def select_chat_room(conn):
     if len(chatrooms) == 0:
-        conn.send("No chat rooms available!".encode())
+        conn.send("No chat rooms available! Creating room...\n".encode())
         return None
     room_selection = -1
     while room_selection < 0 or room_selection > len(chatrooms) - 1:
@@ -124,10 +110,10 @@ def select_chat_room(conn):
             room_selection = int(room_selection)
             print(room_selection)
         except ValueError:
-            conn.send("ERROR: Non integer response detected.\n")
+            conn.send("ERROR: Non integer response detected.\n".encode())
             room_selection = -1
         if room_selection < 0 or room_selection > len(chatrooms) - 1:
-            conn.send("Try Again, please enter a valid room number\n")
+            conn.send("Try Again, please enter a valid room number\n".encode())
     return room_selection
 
 print("Chat app initialized. Listening...")
