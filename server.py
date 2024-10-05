@@ -6,8 +6,8 @@ from _thread import *
 class ChatRoom:
     next_room_num = 0
     def __init__(self, conn):
-        self.room_num = self.next_room_num
-        self.next_room_num += 1
+        self.room_num = ChatRoom.next_room_num
+        ChatRoom.next_room_num += 1
         self.clients = [conn]
 
     def add_client(self, conn):
@@ -36,11 +36,9 @@ def client_thread(conn, addr):
         print(f"Client at {addr[0]} has entered as {username}")
     conn.send(f"Welcome to the chat app, {username}!\n".encode())
     action = prompt_actions(conn)
-    selected_room = 0
     if action == '1':
         selected_room = ChatRoom(conn)
         chatrooms.append(selected_room)
-
     elif action == '2':
         selected_room_num = select_chat_room(conn)
         if selected_room_num is None:
