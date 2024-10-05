@@ -8,6 +8,7 @@ class ChatRoom:
     def __init__(self, conn):
         self.room_num = ChatRoom.next_room_num
         ChatRoom.next_room_num += 1
+        self.messages = []
         self.clients = [conn]
 
     def add_client(self, conn):
@@ -15,6 +16,9 @@ class ChatRoom:
 
     def remove_client(self, conn):
         self.clients.remove(conn)
+    
+    def add_message(self, message):
+        self.messages.append(message)
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -50,7 +54,7 @@ def client_thread(conn, addr):
         close_connection(conn, addr)
         return
 
-    broadcast_message(selected_room, f"{username} has joined.\n")
+    selected_room.add_message(f"{username} has joined.\n")
     await_messages(selected_room, username, conn)
     print(f"{username} left chat room {selected_room.room_num}")
     close_connection(conn, addr)
@@ -60,25 +64,26 @@ def close_connection(conn, addr):
     conn.close()
 
 def await_messages(room, username, conn):
-    conn.send("To leave the chat room, type '/exit'\n".encode())
+    conn.send("Input will now be sent to chatoom. To see chat room messages, type '/read'. To leave, type '/exit'\n".encode())
     while True:
         try:
             message = conn.recv(2048).decode().strip()
             if message == "/exit":
                 chatrooms[room.room_num].remove_client(conn)
-                broadcast_message(room, f"{username} has left the chat.")
+                room.add_message(f"{username} has left the chat.\n")
                 break
-            if message:
-                broadcast_message(room, f"{username}: {message}")
+            if message == "/read":
+                print(room.messages)
+                for message in room.messages:
+                    try:
+                        conn.send(message.encode())
+                    except:
+                        room.remove_client(conn)
+            else:
+                room.add_message(f"{username}: {message}\n")
+                conn.send("Message sent.".encode())
         except:
             break
-
-def broadcast_message(room, message):
-    for conn in room.clients:
-        try:
-            conn.send(message.encode())
-        except:
-            room.remove_client(conn)
 
 def prompt_actions(conn):
     user_input = " "
