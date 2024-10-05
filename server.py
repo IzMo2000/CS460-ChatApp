@@ -73,7 +73,6 @@ def await_messages(room, username, conn):
                 room.add_message(f"{username} has left the chat.\n")
                 break
             if message == "/read":
-                print(room.messages)
                 for message in room.messages:
                     try:
                         conn.send(message.encode())
@@ -108,10 +107,8 @@ def select_chat_room(conn):
             conn.send(f"Chatroom {chatroom.room_num}\n".encode())
         conn.send("Join chat room #: ".encode())
         room_selection = conn.recv(2048).decode().strip()
-        print(room_selection)
         try:
             room_selection = int(room_selection)
-            print(room_selection)
         except ValueError:
             conn.send("ERROR: Non integer response detected.\n".encode())
             room_selection = -1

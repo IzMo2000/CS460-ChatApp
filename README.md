@@ -1,10 +1,43 @@
-How to run the code:
-In the first terminal you want to run the command python3 server.py IP address 8181. The ip address will be your server id address and the port 8181. Once the server is listening. Open another terminal and use the command python3 client.py IP address 8181 . The id address and the port should be the same as the sever. You will be told to enter a name. Enter a name, then I would go and open another terminal. This terminal command should be python3 client.py IP. Then you will enter the name of the second person. You then will want to pick a chat room, have one of the clients pick chat room 1, and then the second client can pick 2 or 1. There you can talk back to each other. When you are done talking, you will hit enter and there you will be able to enter another chat room or leave the chat room as whole. When checking the demo.pcap, you should type in the tcp in the top of wireshark. 
+# How to run the code
 
-Terminal One: python3 server.py 104.168.162.191 8181
-Terminal Two: python3 client.py 104.168.162.191
-Terminal Three: python3 client.py 104.168.162.191
+## Running the server
 
-104.168.162.191 -server
-134.114.101.51 - client 
-18.222.144.221 - client
+On the server host, enter the following command:
+
+`python3 server.py ip_address`
+
+where `ip_address` is the ip address associated with the host running the server
+
+## Connecting to the server
+
+To connect to the server, enter the following command:
+
+`python3 client.py ip_address`
+
+where `ip_address` is the same ip used for the last command - we are trying to connect to the server at this address
+
+## Chatroom operations
+
+When the server is accessed, the client will be told to enter a name. After entering the name (or disconnecting using Enter), the client can select from the following options:
+
+```
+1. Create and Join a New Server
+2. Join an Existing Server
+3. Disconnect
+```
+
+Assuming the user has then joined a chat room from this point, they will be able to send messages to other users in this room by submitting a message. They can then leave and disconnect from the server using `/exit` while in the chat room
+
+# Interpretting demo.pcap
+
+When checking the demo.pcap, you should apply the filter `tcp` in the top of wireshark.
+
+The following commands were ran, with Terminal 1 being the server and Terminals 2 & 3 being the clients:
+
+Terminal One, 104.168.162.191: `python3 server.py 104.168.162.191`
+
+Terminal Two, 134.114.101.51: `python3 client.py 104.168.162.191`
+
+Terminal Three, 18.222.144.221: `python3 client.py 104.168.162.191`
+
+The clients then both joined the same chat room, exchanged a message each, and closed out their connections.
