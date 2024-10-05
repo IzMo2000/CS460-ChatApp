@@ -26,7 +26,7 @@ When the server is accessed, the client will be told to enter a name. After ente
 3. Disconnect
 ```
 
-Assuming the user has then joined a chat room from this point, they will be able to send messages to other users in this room by submitting a message. They can then leave and disconnect from the server using `/exit` while in the chat room
+Assuming the user has then joined a chat room from this point, they will be able to send messages to other users in this room by submitting a message. They can see the messages in the chat room using `/read` while in the chat room. They can then leave and disconnect from the server using `/exit` while in the chat room.
 
 # Interpretting demo.pcap
 
